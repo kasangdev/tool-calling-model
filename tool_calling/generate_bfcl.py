@@ -6,13 +6,15 @@ from tool_calling.baseline import (
     generate_from_messages
 )
 from tool_calling.evaluate_lora import load_lora_model_and_tokenizer
-from tool_calling.bfcl_data import load_bfcl_records
+from tool_calling.bfcl_data import add_bfcl_data_dir_argument, load_bfcl_records
+from tool_calling.model_config import BASE_MODEL_ID
 from tool_calling.prepare_data import save_jsonl
 from tool_calling.v3_veto import generate_with_v3_veto
 
 
 def main():
     parser = argparse.ArgumentParser()
+    add_bfcl_data_dir_argument(parser)
     parser.add_argument(
         "--model",
         choices=["baseline", "lora-v1", "lora-v3", "baseline-with-v3-veto-live"],
@@ -23,13 +25,7 @@ def main():
     args = parser.parse_args()
     use_veto = args.model == "baseline-with-v3-veto-live"
 
-    data_dir = Path(
-        r"E:\Codex\references\gorilla"
-        r"\berkeley-function-call-leaderboard\bfcl_eval\data"
-    )
-
     project_dir = Path(__file__).resolve().parents[1]
-    model_id = "Qwen/Qwen2.5-0.5B-Instruct"
     cache_dir = project_dir / "models" / "hf"
     max_new_tokens = 1024
 
@@ -44,7 +40,7 @@ def main():
             / args.model
     )
     records = load_bfcl_records(
-        data_dir,
+        args.bfcl_data_dir,
         limit_per_category=args.limit_per_category,
         offset_per_category=args.offset_per_category
     )
@@ -53,14 +49,14 @@ def main():
 
     if args.model == "baseline":
         model, tokenizer = load_model_and_tokenizer(
-            model_id,
+            BASE_MODEL_ID,
             cache_dir
         )
     else:
         version = "v1" if args.model == "lora-v1" else "v3"
         adapter_dir = project_dir / "runs" / "lora" / version / "checkpoint-500"
         model, tokenizer = load_lora_model_and_tokenizer(
-            model_id,
+            BASE_MODEL_ID,
             cache_dir,
             adapter_dir
         )

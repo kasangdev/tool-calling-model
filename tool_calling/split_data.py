@@ -6,6 +6,7 @@ from pathlib import Path
 from transformers import AutoTokenizer
 
 from tool_calling.data import load_jsonl
+from tool_calling.model_config import BASE_MODEL_ID, BASE_MODEL_REVISION
 from tool_calling.prepare_data import save_jsonl
 
 
@@ -106,8 +107,9 @@ def main()->None:
     output_dir=project_dir / "data" / "processed" / "v1"
     records=load_jsonl(data_path)
     tokenizer = AutoTokenizer.from_pretrained(
-        "Qwen/Qwen2.5-0.5B-Instruct",
+        BASE_MODEL_ID,
         cache_dir=project_dir / "models" / "hf",
+        revision=BASE_MODEL_REVISION,
         local_files_only=True,
     )
     splits,report=build_splits(records, tokenizer)

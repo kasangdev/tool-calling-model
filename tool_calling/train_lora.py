@@ -5,6 +5,7 @@ import math
 import torch
 from tool_calling.baseline import load_model_and_tokenizer
 from tool_calling.data import load_jsonl
+from tool_calling.model_config import BASE_MODEL_ID
 from tool_calling.training_data import build_training_dataset
 from trl.trainer.sft_trainer import DataCollatorForLanguageModeling
 from transformers import set_seed
@@ -29,7 +30,7 @@ def main() -> None:
     validation_path = project_dir / "data" / "processed" / "v1" / "validation.jsonl"
     cache_dir=project_dir / "models" / "hf"
     output_dir = project_dir / "runs" / "lora" / args.version
-    model_id="Qwen/Qwen2.5-0.5B-Instruct"
+    model_id = BASE_MODEL_ID
     max_sequence_tokens=1024
 
     set_seed(42)

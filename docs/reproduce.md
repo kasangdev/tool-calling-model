@@ -20,7 +20,7 @@ $projectPython = (Resolve-Path '.\.venv\Scripts\python.exe').Path
 训练和推理脚本从 `models/hf/` 读取 Hugging Face 本地缓存。下载缓存后，后续推理使用本地文件。本次实验的模型快照提交为 `7ae557604adf67be50417f59c2c2f167def9a775`。 [对应模型快照](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/tree/7ae557604adf67be50417f59c2c2f167def9a775)
 
 ```powershell
-& $projectPython -c "from huggingface_hub import snapshot_download; snapshot_download('Qwen/Qwen2.5-0.5B-Instruct', cache_dir='models/hf')"
+& $projectPython -c "from huggingface_hub import snapshot_download; from tool_calling.model_config import BASE_MODEL_ID, BASE_MODEL_REVISION; snapshot_download(BASE_MODEL_ID, revision=BASE_MODEL_REVISION, cache_dir='models/hf')"
 ```
 
 登录 Hugging Face 并接受数据集的访问条件后，下载 `xlam_function_calling_60k.json`，保存为 `data/raw/xlam_function_calling_60k.json`。本次实验使用的原始文件 SHA-256 为 `4EF5C6F0DC552F2231F93F5853A9EF431E9E806D7AA514D0F6B615606CE576C6`。 [xLAM 官方下载页](https://huggingface.co/datasets/Salesforce/xlam-function-calling-60k/blob/main/xlam_function_calling_60k.json)
@@ -55,15 +55,15 @@ $scorePython = (Resolve-Path '..\bfcl-score-env\Scripts\python.exe').Path
 & $scorePython -m pip install $bfclProject
 ```
 
-将 [generate_bfcl.py](../tool_calling/generate_bfcl.py) 和 [score_bfcl.py](../tool_calling/score_bfcl.py) 中的 `data_dir` 都设为上面打印的绝对路径。现有默认值是原实验机的路径。这个目录应包含 `BFCL_v4_simple_python.json`、`BFCL_v4_irrelevance.json` 和 `possible_answer/BFCL_v4_simple_python.json`。
+生成预测和评分时，使用 `--bfcl-data-dir` 传入同一个 `$bfclDataDir`。该目录应包含 `BFCL_v4_simple_python.json`、`BFCL_v4_irrelevance.json` 和 `possible_answer/BFCL_v4_simple_python.json`。
 
 ## 5. 运行两阶段评测
 
 先在模型环境生成预测，再在 BFCL 环境评分。两条命令使用同一偏移与样本数量，各类别都取索引 200–239 的 40 条样本。
 
 ```powershell
-& $projectPython -m tool_calling.generate_bfcl --model baseline-with-v3-veto-live --offset-per-category 200 --limit-per-category 40
-& $scorePython -m tool_calling.score_bfcl --model baseline-with-v3-veto-live --offset-per-category 200 --limit-per-category 40
+& $projectPython -m tool_calling.generate_bfcl --bfcl-data-dir $bfclDataDir --model baseline-with-v3-veto-live --offset-per-category 200 --limit-per-category 40
+& $scorePython -m tool_calling.score_bfcl --bfcl-data-dir $bfclDataDir --model baseline-with-v3-veto-live --offset-per-category 200 --limit-per-category 40
 ```
 
 输出位于 `runs/bfcl/per_category_40_offset_200/baseline-with-v3-veto-live/`。

@@ -5,6 +5,7 @@ from transformers import AutoTokenizer
 from trl.trainer.sft_trainer import DataCollatorForLanguageModeling
 
 from tool_calling.data import load_jsonl
+from tool_calling.model_config import BASE_MODEL_ID, BASE_MODEL_REVISION
 
 
 
@@ -58,12 +59,12 @@ def main() -> None:
     project_dir=Path(__file__).resolve().parents[1]
     data_dir=project_dir / "data" / "processed" / "v1"
     cache_dir=project_dir / "models" / "hf"
-    model_id="Qwen/Qwen2.5-0.5B-Instruct"
     max_sequence_tokens=1024
 
     tokenizer = AutoTokenizer.from_pretrained(
-        model_id,
+        BASE_MODEL_ID,
         cache_dir=cache_dir,
+        revision=BASE_MODEL_REVISION,
         local_files_only=True,
     )
 

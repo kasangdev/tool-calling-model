@@ -11,8 +11,9 @@ from bfcl_eval.constants.model_config import MODEL_CONFIG_MAPPING
 from bfcl_eval.eval_checker.ast_eval.ast_checker import ast_checker
 
 from tool_calling.data import load_jsonl
-from tool_calling.bfcl_data import load_bfcl_records
+from tool_calling.bfcl_data import add_bfcl_data_dir_argument, load_bfcl_records
 from tool_calling.evaluation import parse_tool_calls
+from tool_calling.model_config import BASE_MODEL_ID
 
 
 
@@ -147,6 +148,7 @@ def summarize_categories(results: list[dict]) -> dict:
 
 def main():
     parser = argparse.ArgumentParser()
+    add_bfcl_data_dir_argument(parser)
     parser.add_argument(
         "--model",
         choices=["baseline", "lora-v1", "lora-v3", "baseline-with-v3-veto-live"],
@@ -158,12 +160,8 @@ def main():
     use_veto = args.model == "baseline-with-v3-veto-live"
 
     project_dir = Path(__file__).resolve().parents[1]
-    model_id = "Qwen/Qwen2.5-0.5B-Instruct"
-
-    data_dir = Path(
-        r"E:\Codex\references\gorilla"
-        r"\berkeley-function-call-leaderboard\bfcl_eval\data"
-    )
+    model_id = BASE_MODEL_ID
+    data_dir = args.bfcl_data_dir
 
     subset_name = f"per_category_{args.limit_per_category}"
 

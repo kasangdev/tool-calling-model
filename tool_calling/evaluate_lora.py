@@ -8,6 +8,7 @@ from tool_calling.data import load_jsonl
 from tool_calling.batch_evaluate import evaluate_records, summarize_results
 from tool_calling.prepare_data import save_jsonl
 from tool_calling.baseline import load_model_and_tokenizer
+from tool_calling.model_config import BASE_MODEL_ID
 
 
 def load_lora_model_and_tokenizer(
@@ -56,7 +57,7 @@ def main() -> None:
     adapter_dir = project_dir / "runs" / "lora" / args.version / "adapter"
     baseline_path = project_dir / "runs" / "baseline" / subset_name / "predictions.jsonl"
     output_dir = project_dir / "runs" / "lora" / args.version / subset_name
-    model_id = "Qwen/Qwen2.5-0.5B-Instruct"
+    model_id = BASE_MODEL_ID
     max_new_tokens = 1024
 
     all_records = load_jsonl(data_path)

@@ -6,6 +6,7 @@ from tool_calling.training_data import encode_training_record
 import random
 from tool_calling.split_data import input_fingerprint
 from tool_calling.prepare_data import save_jsonl
+from tool_calling.model_config import BASE_MODEL_ID, BASE_MODEL_REVISION
 
 
 def make_no_call_record(source: dict, spec: dict) -> dict:
@@ -214,12 +215,12 @@ def main():
         )
 
 
-    model_id = "Qwen/Qwen2.5-0.5B-Instruct"
     cache_dir = project_dir / "models" / "hf"
 
     tokenizer = AutoTokenizer.from_pretrained(
-        model_id,
+        BASE_MODEL_ID,
         cache_dir=cache_dir,
+        revision=BASE_MODEL_REVISION,
         local_files_only=True
     )
 

@@ -1,8 +1,18 @@
+import argparse
 import copy
 import json
 from pathlib import Path
 
 from tool_calling.data import load_jsonl
+
+
+def add_bfcl_data_dir_argument(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--bfcl-data-dir",
+        type=Path,
+        required=True,
+        help="Path to the BFCL v4 bfcl_eval/data directory.",
+    )
 
 
 def normalize_bfcl_schema(schema: dict) -> dict:
@@ -89,11 +99,10 @@ def load_bfcl_records(
 
 
 def main() -> None:
-    data_dir = Path(
-        r"E:\Codex\references\gorilla"
-        r"\berkeley-function-call-leaderboard\bfcl_eval\data"
-    )
-    records = load_bfcl_records(data_dir)
+    parser = argparse.ArgumentParser(description="Check normalized BFCL v4 records.")
+    add_bfcl_data_dir_argument(parser)
+    args = parser.parse_args()
+    records = load_bfcl_records(args.bfcl_data_dir)
     simple_records = [record for record in records if record["category"] == "simple_python"]
     irrelevance_records = [record for record in records if record["category"] == "irrelevance"]
     sample_ids={record["sample_id"] for record in records}

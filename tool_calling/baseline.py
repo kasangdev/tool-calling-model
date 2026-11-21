@@ -5,18 +5,22 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from tool_calling.data import load_jsonl
 from tool_calling.evaluation import evaluate_response
+from tool_calling.model_config import BASE_MODEL_ID, BASE_MODEL_REVISION
 
 
 def load_model_and_tokenizer(model_id: str, cache_dir: str | Path):
-    tokenizer = AutoTokenizer.from_pretrained(model_id,
-                                              cache_dir=cache_dir,
-                                              local_files_only=True)
-    model=AutoModelForCausalLM.from_pretrained(model_id,
-                                               cache_dir=cache_dir,
-                                               dtype=torch.bfloat16,
-                                               device_map="cuda:0",
-                                               attn_implementation="sdpa",
-                                               local_files_only=True)
+    pretrained_options = {"cache_dir": cache_dir, "local_files_only": True}
+    if model_id == BASE_MODEL_ID:
+        pretrained_options["revision"] = BASE_MODEL_REVISION
+
+    tokenizer = AutoTokenizer.from_pretrained(model_id, **pretrained_options)
+    model = AutoModelForCausalLM.from_pretrained(
+        model_id,
+        dtype=torch.bfloat16,
+        device_map="cuda:0",
+        attn_implementation="sdpa",
+        **pretrained_options,
+    )
 
     model.eval()
     return model,tokenizer
@@ -68,13 +72,12 @@ def generate_completion(
 
 def main():
     project_dir = Path(__file__).resolve().parents[1]
-    model_id="Qwen/Qwen2.5-0.5B-Instruct"
     cache_dir=project_dir / "models"/"hf"
 
     records=load_jsonl(project_dir/"data"/"examples"/"tool_calls_demo.jsonl")
 
     record=records[0]
-    model,tokenizer=load_model_and_tokenizer(model_id, cache_dir)
+    model,tokenizer=load_model_and_tokenizer(BASE_MODEL_ID, cache_dir)
 
     generated_text=generate_completion(model, tokenizer, record)
 

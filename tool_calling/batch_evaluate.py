@@ -6,6 +6,7 @@ import argparse
 from tool_calling.data import load_jsonl
 from tool_calling.baseline import load_model_and_tokenizer, generate_completion
 from tool_calling.evaluation import evaluate_response
+from tool_calling.model_config import BASE_MODEL_ID
 from tool_calling.prepare_data import save_jsonl
 
 
@@ -80,7 +81,7 @@ def main()->None:
     output_dir=project_dir / "runs" / "baseline" / subset_name
     cache_dir=project_dir / "models" / "hf"
 
-    model_id = "Qwen/Qwen2.5-0.5B-Instruct"
+    model_id = BASE_MODEL_ID
     max_new_tokens = 1024
 
     all_records = load_jsonl(data_path)

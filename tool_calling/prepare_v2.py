@@ -4,6 +4,7 @@ from pathlib import Path
 
 from transformers import AutoTokenizer
 from tool_calling.data import load_jsonl
+from tool_calling.model_config import BASE_MODEL_ID, BASE_MODEL_REVISION
 from tool_calling.prepare_data import save_jsonl
 from tool_calling.training_data import encode_training_record
 
@@ -25,7 +26,6 @@ def main() -> None:
     source_train_path = project_dir / "data" / "processed" / "v1" / "train.jsonl"
     output_dir = project_dir / "data" / "processed" / "v2"
     cache_dir = project_dir / "models" / "hf"
-    model_id = "Qwen/Qwen2.5-0.5B-Instruct"
     max_sequence_tokens = 1024
 
     original_records = load_jsonl(source_train_path)
@@ -51,8 +51,9 @@ def main() -> None:
     assert original_sample_ids == cleaned_sample_ids
 
     tokenizer = AutoTokenizer.from_pretrained(
-        model_id,
+        BASE_MODEL_ID,
         cache_dir=cache_dir,
+        revision=BASE_MODEL_REVISION,
         local_files_only=True,
     )
     max_observed_sequence_tokens = 0

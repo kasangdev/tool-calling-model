@@ -1,6 +1,7 @@
+import argparse
 import json
-from pathlib import Path
 
+from tool_calling.bfcl_data import add_bfcl_data_dir_argument
 from tool_calling.data import load_jsonl
 
 
@@ -14,10 +15,10 @@ def inspect_records(name: str, records: list[dict]) -> None:
 
 
 def main() -> None:
-    data_dir = Path(
-        r"E:\Codex\references\gorilla"
-        r"\berkeley-function-call-leaderboard\bfcl_eval\data"
-    )
+    parser = argparse.ArgumentParser(description="Inspect raw BFCL v4 data.")
+    add_bfcl_data_dir_argument(parser)
+    args = parser.parse_args()
+    data_dir = args.bfcl_data_dir
 
     simple_path=data_dir / "BFCL_v4_simple_python.json"
     irrelevance_path=data_dir / "BFCL_v4_irrelevance.json"
